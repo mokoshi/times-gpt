@@ -3,6 +3,9 @@ import { container } from "tsyringe";
 import { OpenAIClient } from "./ai/openai-client";
 import { Logger } from "./logger";
 import { SqliteBotContextRepository } from "./ai/bot-context-repository/sqlite-bot-context-repository";
+import { TogglTrackClient } from "./toggl-track/toggl-track";
+import { MfKintaiClient } from "./mf-kintai/mf-kintai";
+import { FunctionHandler } from "./function-handler/function-handler";
 
 export function register(config: {
   logger: { logLevel: "debug" | "info" | "warn" | "error" };
@@ -17,5 +20,17 @@ export function register(config: {
   });
   container.register("OpenAIClient", {
     useValue: new OpenAIClient(process.env.OPENAI_API_KEY!),
+  });
+  container.register("MfKintaiClient", {
+    useValue: new MfKintaiClient(process.env.MF_SESSION_ID!),
+  });
+  container.register("TogglTrackClient", {
+    useValue: new TogglTrackClient(
+      process.env.TOGGL_TRACK_API_TOKEN!,
+      process.env.TOGGL_TRACK_WORKSPACE_ID!
+    ),
+  });
+  container.register("FunctionHandler", {
+    useValue: new FunctionHandler(),
   });
 }

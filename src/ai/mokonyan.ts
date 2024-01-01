@@ -4,6 +4,7 @@ import { OpenAIClient } from "./openai-client";
 import { Logger } from "../logger";
 import { type BotContextRepository } from "./bot-context-repository/bot-context-repository";
 import OpenAI from "openai";
+import { FunctionHandler } from "../function-handler/function-handler";
 
 @autoInjectable()
 export class Mokonyan {
@@ -11,15 +12,18 @@ export class Mokonyan {
   private logger: Logger;
   private botContextRepository: BotContextRepository;
   private botContextId: number | null = null;
+  private functionHandler: FunctionHandler;
 
   constructor(
     @inject("OpenAIClient") openai?: OpenAIClient,
     @inject("Logger") logger?: Logger,
-    @inject("BotContextRepository") ctx?: BotContextRepository
+    @inject("BotContextRepository") ctx?: BotContextRepository,
+    @inject("FunctionHandler") functionHandler?: FunctionHandler
   ) {
     this.openai = openai!;
     this.logger = logger!;
     this.botContextRepository = ctx!;
+    this.functionHandler = functionHandler!;
   }
 
   private async getBotContext() {
@@ -95,11 +99,11 @@ export class Mokonyan {
           .tool_calls) {
           this.logger.debug("Will call function", { toolCall });
 
-          // TODO: Call function and respond
-          toolOutputs.push({
-            output: "実行しました",
-            tool_call_id: toolCall.id,
-          });
+          const output = await this.functionHandler.callFunction(
+            toolCall.function.name,
+            toolCall.function.arguments
+          );
+          toolOutputs.push({ output, tool_call_id: toolCall.id });
         }
 
         const submitResult = await this.openai.submitToolOutputs(

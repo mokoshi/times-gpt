@@ -6,8 +6,9 @@
     "db:migrate:list": "wrangler d1 migrations list times-gpt",
     "db:migrate:apply": "wrangler d1 migrations apply times-gpt",
     "tunnel": "cloudflared tunnel --url http://localhost:8787",
-    "kintai-sandbox": "bun src/kintai/kintai-sandbox.ts",
-    "ai-sandbox": "bun src/ai/ai-sandbox.ts | pino-pretty"
+    "kintai-sandbox": "bun src/kintai/sandbox.ts",
+    "ai-sandbox": "bun src/ai/sandbox.ts | pino-pretty",
+    "toggl-track-sandbox": "bun src/toggl-track/sandbox.ts | pino-pretty"
   },
   "dependencies": {
     "drizzle-orm": "^0.29.1",

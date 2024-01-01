@@ -1,4 +1,4 @@
-class Kintai {
+export class MfKintaiClient {
   constructor(private readonly sessionId: string) {}
 
   async getAttendanceHistories(now: Date) {

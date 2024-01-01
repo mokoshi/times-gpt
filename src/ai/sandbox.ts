@@ -6,7 +6,11 @@ register({
   logger: { logLevel: "debug" },
 });
 
-async function main() {
+async function functionHandler(name: string, args: string) {
+  return "実行しました";
+}
+
+async function sandbox() {
   const mokonyan = new Mokonyan();
   await mokonyan.prepareForAssistant(true);
 
@@ -14,7 +18,7 @@ async function main() {
     "asst_cnIZ0N9HmF8laj9ZXd5V4b7C",
     "おはようございます。今日も一日頑張りましょう！"
   );
-  await mokonyan.think();
+  await mokonyan.think(functionHandler);
   const messages = await mokonyan.getUnreadMessages();
   console.log(messages);
 
@@ -22,10 +26,10 @@ async function main() {
     console.log("> ");
     const input = await readInput();
     await mokonyan.addMessage(input);
-    await mokonyan.think();
+    await mokonyan.think(functionHandler);
     const messages = await mokonyan.getUnreadMessages();
     console.log(messages);
   }
 }
 
-main();
+sandbox();
