@@ -3,8 +3,8 @@ import { autoInjectable, inject } from "tsyringe";
 import { OpenAIClient } from "./openai-client";
 import { Logger } from "../logger";
 import { type BotContextRepository } from "./bot-context-repository/bot-context-repository";
-import OpenAI from "openai";
 import { FunctionHandler } from "../function-handler/function-handler";
+import OpenAI from "openai";
 
 @autoInjectable()
 export class Mokonyan {
@@ -99,10 +99,10 @@ export class Mokonyan {
           .tool_calls) {
           this.logger.debug("Will call function", { toolCall });
 
-          const output = await this.functionHandler.callFunction(
-            toolCall.function.name,
-            toolCall.function.arguments
-          );
+          const output = await this.functionHandler.callFunction({
+            name: toolCall.function.name as any,
+            params: JSON.parse(toolCall.function.arguments),
+          });
           toolOutputs.push({ output, tool_call_id: toolCall.id });
         }
 

@@ -1,11 +1,5 @@
 import OpenAI from "openai";
-import { KintaiFunc } from "./function-defs/kintai";
-import {
-  AddTaskMemoFunc,
-  EndTaskFunc,
-  RecordTaskFunc,
-  StartTaskFunc,
-} from "./function-defs/task";
+import { FunctionDefs } from "../function-handler/function-defs";
 
 export const AssistantDefs = {
   mokonyan: {
@@ -36,25 +30,10 @@ export const AssistantDefs = {
 出勤と退勤については、打刻してよいかどうか１度確認してから実施してください。
 `,
     name: "time-gpt-assistant",
-    tools: [
-      { type: "function", function: KintaiFunc },
-      {
-        type: "function",
-        function: StartTaskFunc,
-      },
-      {
-        type: "function",
-        function: EndTaskFunc,
-      },
-      {
-        type: "function",
-        function: AddTaskMemoFunc,
-      },
-      {
-        type: "function",
-        function: RecordTaskFunc,
-      },
-    ],
+    tools: Object.values(FunctionDefs).map((def) => ({
+      type: "function" as const,
+      function: def,
+    })),
     model: "gpt-4-1106-preview",
   } satisfies OpenAI.Beta.AssistantCreateParams,
 };
