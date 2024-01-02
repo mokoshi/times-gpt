@@ -59,6 +59,7 @@ export class Mokonyan {
         assistantId: assistant.id,
         assistantDescription: assistant.description,
       });
+      return assistant.id;
     } else {
       const assistants = await this.openai.listAssistant();
       const assistant = assistants[0];
@@ -66,6 +67,7 @@ export class Mokonyan {
         assistantId: assistant.id,
         assistantDescription: assistant.description,
       });
+      return assistant.id;
     }
   }
 
@@ -79,7 +81,7 @@ export class Mokonyan {
     } = await this.getBotContext();
 
     this.logger.debug("Run start");
-    const run = await this.openai.runThreadAndWait(threadId, assistantId);
+    let run = await this.openai.runThreadAndWait(threadId, assistantId);
     if (!run) {
       this.logger.warn("Failed to finish run");
       return;
@@ -88,7 +90,7 @@ export class Mokonyan {
 
     await this.botContextRepository.save(botContextId, { runId: run.id });
 
-    if (run?.required_action) {
+    while (run?.required_action) {
       this.logger.debug("Action required!", {
         requiredAction: run.required_action,
       });
@@ -99,24 +101,36 @@ export class Mokonyan {
           .tool_calls) {
           this.logger.debug("Will call function", { toolCall });
 
+          let params = {};
+          try {
+            params =
+              toolCall.function.arguments === ""
+                ? {}
+                : JSON.parse(toolCall.function.arguments);
+          } catch {
+            this.logger.error("Failed to parse arguments", {
+              arguments: toolCall.function.arguments,
+            });
+          }
+
           const output = await this.functionHandler.callFunction({
             name: toolCall.function.name as any,
-            params: JSON.parse(toolCall.function.arguments),
+            params,
           });
           toolOutputs.push({ output, tool_call_id: toolCall.id });
         }
 
-        const submitResult = await this.openai.submitToolOutputs(
+        run = await this.openai.submitToolOutputs(
           threadId,
           run.id,
           toolOutputs
         );
         this.logger.debug("Submitted tool outputs", {
           threadId,
-          runId: submitResult.id,
+          runId: run.id,
           toolOutputs,
         });
-        await this.openai.waitForRun(threadId, submitResult.id);
+        run = await this.openai.waitForRun(threadId, run.id);
       }
     }
   }

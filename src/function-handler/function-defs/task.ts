@@ -10,22 +10,8 @@ export const TaskFuncDefs = {
           description: "タスクの名前",
         },
       },
+      required: ["title"],
     },
-    required: ["title"],
-  },
-  add_task_memo: {
-    name: "add_task_memo",
-    description: "現在進行中のタスクにメモを追記します",
-    parameters: {
-      type: "object",
-      properties: {
-        content: {
-          type: "string",
-          description: "メモの内容。マークダウン形式で記述。",
-        },
-      },
-    },
-    required: ["content"],
   },
   record_end_task: {
     name: "record_end_task",
@@ -33,16 +19,24 @@ export const TaskFuncDefs = {
     parameters: {
       type: "object",
       properties: {
-        categories: {
+        task_id: {
+          type: "number",
+          description: "タスクのID",
+        },
+        project: {
+          type: "string",
+          description: "タスクのプロジェクト",
+        },
+        tags: {
           type: "array",
-          description: "タスクのカテゴリ",
-          items: { type: "string" },
-          minItesm: 1,
-          maxItems: 3,
+          description: "タスクのタグ",
+          items: {
+            type: "string",
+          },
         },
       },
+      required: ["task_id", "project", "tags"],
     },
-    required: ["categories"],
   },
   record_start_and_end_task: {
     name: "record_start_and_end_task",
@@ -54,19 +48,28 @@ export const TaskFuncDefs = {
           type: "string",
           description: "タスクの名前",
         },
-        categories: {
+        project: {
+          type: "string",
+          description: "タスクのプロジェクト",
+        },
+        tags: {
           type: "array",
-          description: "タスクのカテゴリ",
-          items: { type: "string" },
-          minItesm: 1,
-          maxItems: 3,
+          description: "タスクのタグ",
+          items: {
+            type: "string",
+          },
         },
         duration: {
           type: "number",
           description: "タスクの実行時間(分)",
         },
       },
+      required: ["title", "project", "tags", "duration"],
     },
-    required: ["title", "categories", "duration"],
+  },
+  fetch_projects_and_tags: {
+    name: "fetch_projects_and_tags",
+    description: "タスクに設定するプロジェクト・タグの一覧を取得します",
+    parameters: {},
   },
 } as const;

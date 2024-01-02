@@ -27,7 +27,7 @@ export function register(config: {
   container.register("TogglTrackClient", {
     useValue: new TogglTrackClient(
       process.env.TOGGL_TRACK_API_TOKEN!,
-      process.env.TOGGL_TRACK_WORKSPACE_ID!
+      Number(process.env.TOGGL_TRACK_WORKSPACE_ID!)
     ),
   });
   container.register("FunctionHandler", {

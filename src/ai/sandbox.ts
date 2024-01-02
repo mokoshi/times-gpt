@@ -6,19 +6,15 @@ register({
   logger: { logLevel: "debug" },
 });
 
-async function functionHandler(name: string, args: string) {
-  return "実行しました";
-}
-
 async function sandbox() {
   const mokonyan = new Mokonyan();
-  await mokonyan.prepareForAssistant(true);
+  const assistantId = await mokonyan.prepareForAssistant(true);
 
   await mokonyan.startTalk(
-    "asst_cnIZ0N9HmF8laj9ZXd5V4b7C",
+    assistantId,
     "おはようございます。今日も一日頑張りましょう！"
   );
-  await mokonyan.think(functionHandler);
+  await mokonyan.think();
   const messages = await mokonyan.getUnreadMessages();
   console.log(messages);
 
@@ -26,7 +22,7 @@ async function sandbox() {
     console.log("> ");
     const input = await readInput();
     await mokonyan.addMessage(input);
-    await mokonyan.think(functionHandler);
+    await mokonyan.think();
     const messages = await mokonyan.getUnreadMessages();
     console.log(messages);
   }
