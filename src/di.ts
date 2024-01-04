@@ -6,28 +6,54 @@ import { SqliteBotContextRepository } from "./ai/bot-context-repository/sqlite-b
 import { TogglTrackClient } from "./toggl-track/toggl-track";
 import { MfKintaiClient } from "./mf-kintai/mf-kintai";
 import { FunctionHandler } from "./function-handler/function-handler";
+import { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
+
+export function registerWithEnv(env: Record<string, any>) {
+  register({
+    logger: {
+      logLevel: env.LOG_LEVEL as any,
+    },
+    openAIClient: {
+      apiKey: env.OPENAI_API_KEY,
+    },
+    mfKintaiClient: {
+      sessionId: env.MF_KINTAI_SESSION_ID,
+    },
+    togglTrackClient: {
+      apiToken: env.TOGGL_TRACK_API_TOKEN,
+      workspaceId: parseInt(env.TOGGL_TRACK_WORKSPACE_ID),
+    },
+    botContextRepository: {
+      drizzle: env.DB,
+    },
+  });
+}
 
 export function register(config: {
   logger: { logLevel: "debug" | "info" | "warn" | "error" };
+  openAIClient: { apiKey: string };
+  mfKintaiClient: { sessionId: string };
+  togglTrackClient: { apiToken: string; workspaceId: number };
+  botContextRepository: { drizzle: BaseSQLiteDatabase<any, any> };
 }) {
   container.register("Logger", {
     useValue: new Logger(config.logger),
   });
   container.register("BotContextRepository", {
     useValue: new SqliteBotContextRepository(
-      "./.wrangler/state/v3/d1/miniflare-D1DatabaseObject/0f56c07050f060c476de712cc860e9226ca8a7339f9034c52969e22811c96c3b.sqlite"
+      config.botContextRepository.drizzle
     ),
   });
   container.register("OpenAIClient", {
-    useValue: new OpenAIClient(process.env.OPENAI_API_KEY!),
+    useValue: new OpenAIClient(config.openAIClient.apiKey),
   });
   container.register("MfKintaiClient", {
-    useValue: new MfKintaiClient(process.env.MF_SESSION_ID!),
+    useValue: new MfKintaiClient(config.mfKintaiClient.sessionId),
   });
   container.register("TogglTrackClient", {
     useValue: new TogglTrackClient(
-      process.env.TOGGL_TRACK_API_TOKEN!,
-      Number(process.env.TOGGL_TRACK_WORKSPACE_ID!)
+      config.togglTrackClient.apiToken,
+      config.togglTrackClient.workspaceId
     ),
   });
   container.register("FunctionHandler", {

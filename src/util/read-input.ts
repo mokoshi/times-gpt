@@ -1,9 +1,5 @@
 import readline from "readline";
 
-export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 export function readInput() {
   const readInterface = readline.createInterface({
     input: process.stdin,

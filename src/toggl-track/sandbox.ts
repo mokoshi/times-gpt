@@ -1,4 +1,4 @@
-import { sleep } from "../util";
+import { sleep } from "../util/sleep";
 import { TogglTrackClient } from "./toggl-track";
 
 async function sandbox() {

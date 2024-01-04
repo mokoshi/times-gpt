@@ -1,0 +1,13 @@
+diff --git a/node_modules/tsyringe/package.json b/node_modules/tsyringe/package.json
+index 8a7ebb7..3e1752d 100644
+--- a/node_modules/tsyringe/package.json
++++ b/node_modules/tsyringe/package.json
+@@ -3,7 +3,7 @@
+   "version": "4.8.0",
+   "description": "Lightweight dependency injection container for JavaScript/TypeScript",
+   "main": "dist/cjs/index.js",
+-  "module": "./dist/esm5/index.js",
++  "module": "./dist/esm2015/index.js",
+   "es2015": "./dist/esm2015/index.js",
+   "typings": "./dist/typings/index.d.ts",
+   "scripts": {

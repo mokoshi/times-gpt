@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { sleep } from "../util";
+import { sleep } from "../util/sleep";
 import { RunSubmitToolOutputsParams } from "openai/resources/beta/threads/runs/runs";
 import { autoInjectable, inject } from "tsyringe";
 import { Logger } from "../logger";

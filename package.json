@@ -8,7 +8,8 @@
     "tunnel": "cloudflared tunnel --url http://localhost:8787",
     "kintai-sandbox": "bun src/kintai/sandbox.ts",
     "ai-sandbox": "bun src/ai/sandbox.ts | pino-pretty",
-    "toggl-track-sandbox": "bun src/toggl-track/sandbox.ts | pino-pretty"
+    "toggl-track-sandbox": "bun src/toggl-track/sandbox.ts | pino-pretty",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "drizzle-orm": "^0.29.1",
@@ -23,6 +24,7 @@
     "@cloudflare/workers-types": "^4.20230914.0",
     "drizzle-kit": "^0.20.6",
     "json-schema-to-ts": "^3.0.0",
+    "patch-package": "^8.0.0",
     "pino-pretty": "^10.3.1",
     "tsx": "^4.7.0",
     "wrangler": "^3.15.0"

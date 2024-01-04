@@ -1,15 +1,13 @@
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import { Database } from "bun:sqlite";
+import { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import { type BotContextRepository } from "./bot-context-repository";
 import { botContext } from "../../schema";
 import { InferInsertModel, desc, eq } from "drizzle-orm";
 
 export class SqliteBotContextRepository implements BotContextRepository {
-  private db: ReturnType<typeof drizzle>;
+  private db: BaseSQLiteDatabase<any, any>;
 
-  constructor(dbFile: string) {
-    const sqlite = new Database(dbFile);
-    this.db = drizzle(sqlite);
+  constructor(drizzle: BaseSQLiteDatabase<any, any>) {
+    this.db = drizzle;
   }
 
   async create(assistantId: string, threadId: string): Promise<number> {
