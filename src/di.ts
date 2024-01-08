@@ -8,6 +8,15 @@ import { MfKintaiClient } from "./mf-kintai/mf-kintai";
 import { FunctionHandler } from "./function-handler/function-handler";
 import { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 
+type Container = {
+  Logger: Logger;
+  BotContextRepository: SqliteBotContextRepository;
+  OpenAIClient: OpenAIClient;
+  MfKintaiClient: MfKintaiClient;
+  TogglTrackClient: TogglTrackClient;
+  FunctionHandler: FunctionHandler;
+};
+
 export function registerWithEnv(env: Record<string, any>) {
   register({
     logger: {
@@ -24,7 +33,7 @@ export function registerWithEnv(env: Record<string, any>) {
       workspaceId: parseInt(env.TOGGL_TRACK_WORKSPACE_ID),
     },
     botContextRepository: {
-      drizzle: env.DB,
+      drizzle: env.Drizzle,
     },
   });
 }
@@ -59,4 +68,10 @@ export function register(config: {
   container.register("FunctionHandler", {
     useValue: new FunctionHandler(),
   });
+}
+
+export function resolve<Name extends keyof Container>(
+  name: Name
+): Container[Name] {
+  return container.resolve(name);
 }

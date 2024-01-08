@@ -11,6 +11,14 @@ bun run dev
 npm run deploy
 ```
 
+## DB
+
+### create
+
+```
+bunx wrangler d1 create times-gpt
+```
+
 ### migrations
 
 1. Edit schema.ts
@@ -18,7 +26,20 @@ npm run deploy
 3. bun db:migrate:apply --local # Apply migrations on local env
 4. bun db:migrate:apply # Apply migrations on production
 
-### Tunneling
+## Secrets
+
+```
+# list secrets
+bun secret:list
+
+# put new secret
+bun secret:put ${SECRET_KEY}
+
+# delete secret
+bun secret:delete ${SECRET_KEY}
+```
+
+## Tunneling
 
 ```
 brew install cloudflare/cloudflare/cloudflared

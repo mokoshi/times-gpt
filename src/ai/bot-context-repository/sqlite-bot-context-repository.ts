@@ -44,7 +44,7 @@ export class SqliteBotContextRepository implements BotContextRepository {
       .orderBy(desc(botContext.date));
 
     if (results.length === 0) {
-      throw new Error(`BotContext not found`);
+      return null;
     }
 
     return results[0];

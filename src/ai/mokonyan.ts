@@ -26,28 +26,22 @@ export class Mokonyan {
     this.functionHandler = functionHandler!;
   }
 
-  private async getBotContext() {
-    if (!this.botContextId) {
-      throw new Error("BotContext is not set");
+  /**
+   * 本日の botContext を作成 or 取得し、内部状態にセットする
+   * 作成する場合は、 thread も同時に作成する
+   */
+  async bootstrap() {
+    this.logger.debug("Bootstrap!");
+
+    const latestContext = await this.botContextRepository.fetchLatest();
+    if (!latestContext || !this.isContextToday(latestContext)) {
+      // start new context
+      this.botContextId = await this.startNewContext(
+        "asst_l9nIUIqaVItaYawSo6PeIqn3"
+      );
+    } else {
+      this.botContextId = latestContext.id;
     }
-    return await this.botContextRepository.fetch(this.botContextId);
-  }
-
-  async restoreTalk() {
-    this.logger.debug("Restore talk!");
-    this.botContextId = 1;
-  }
-
-  async startTalk(assistantId: string, initialMessage: string) {
-    this.logger.debug("Start new talk!", { assistantId, initialMessage });
-
-    const thread = await this.openai.createThread(initialMessage);
-    this.logger.debug("Created openai.thread", { threadId: thread.id });
-
-    this.botContextId = await this.botContextRepository.create(
-      assistantId,
-      thread.id
-    );
   }
 
   async prepareForAssistant(createNew = false) {
@@ -136,14 +130,14 @@ export class Mokonyan {
   }
 
   async addMessage(message: string) {
-    this.logger.debug("Add message!");
+    this.logger.debug("Add message!", { message });
 
     const { threadId } = await this.getBotContext();
 
     await this.openai.addThreadMessage(threadId, message);
   }
 
-  async getUnreadMessages() {
+  async getUnreadMessages(opts: { role?: "user" | "assistant" } = {}) {
     this.logger.debug("Get unread messages!");
 
     const {
@@ -160,6 +154,12 @@ export class Mokonyan {
       if (message.created_at <= messageReadAt) {
         break;
       }
+      if (opts.role) {
+        if (message.role !== opts.role) {
+          continue;
+        }
+      }
+
       for (const content of message.content) {
         if (content.type === "image_file") {
           messages.push({
@@ -181,5 +181,41 @@ export class Mokonyan {
     });
 
     return messages;
+  }
+
+  private async startNewContext(assistantId: string) {
+    this.logger.debug("Start new thread!", { assistantId });
+
+    const thread = await this.openai.createThread();
+    this.logger.debug("Created openai.thread.", { threadId: thread.id });
+
+    const botContextId = await this.botContextRepository.create(
+      assistantId,
+      thread.id
+    );
+    this.logger.debug("Created botContext.", { botContextId });
+
+    return botContextId;
+  }
+
+  private async getBotContext() {
+    if (!this.botContextId) {
+      throw new Error("BotContext is not set");
+    }
+    return await this.botContextRepository.fetch(this.botContextId);
+  }
+
+  private isContextToday(ctx: { date: string }) {
+    const now = new Date();
+    const date = new Date(ctx.date);
+    // 朝の4時までは前日とみなす
+    if (now.getHours() < 4) {
+      now.setDate(now.getDate() - 1);
+    }
+    return (
+      now.getFullYear() === date.getFullYear() &&
+      now.getMonth() === date.getMonth() &&
+      now.getDate() === date.getDate()
+    );
   }
 }

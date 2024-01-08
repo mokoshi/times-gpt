@@ -1,18 +1,17 @@
 import { Database } from "bun:sqlite";
 import { drizzle } from "drizzle-orm/bun-sqlite";
-import { register } from "../di";
+import { registerWithEnv } from "../di";
 import { readInput } from "../util/read-input";
 import { Mokonyan } from "./mokonyan";
+import fs from "fs";
 
-register({
-  logger: { logLevel: "debug" },
-  botContextRepository: {
-    drizzle: drizzle(
-      new Database(
-        "./.wrangler/state/v3/d1/miniflare-D1DatabaseObject/0f56c07050f060c476de712cc860e9226ca8a7339f9034c52969e22811c96c3b.sqlite"
-      )
-    ),
-  },
+const d1local = "./.wrangler/state/v3/d1/miniflare-D1DatabaseObject";
+const sqliteFile = fs
+  .readdirSync(d1local)
+  .find((file) => file.endsWith(".sqlite"));
+registerWithEnv({
+  ...process.env,
+  Drizzle: drizzle(new Database(`${d1local}/${sqliteFile}`)),
 });
 
 async function sandbox() {
