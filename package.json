@@ -12,6 +12,7 @@
     "kintai-sandbox": "bun src/kintai/sandbox.ts",
     "ai-sandbox": "bun src/ai/sandbox.ts | pino-pretty",
     "toggl-track-sandbox": "bun src/toggl-track/sandbox.ts | pino-pretty",
+    "renew-assistant": "HOST=${HOST:-http://localhost:8787} bun src/ai/renew-assistant.ts | pino-pretty",
     "postinstall": "patch-package"
   },
   "dependencies": {

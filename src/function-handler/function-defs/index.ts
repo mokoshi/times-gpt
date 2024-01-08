@@ -21,6 +21,9 @@ export type FunctionParams = {
   [TaskFuncDefs.record_end_task.name]: FromSchema<
     typeof TaskFuncDefs.record_end_task.parameters
   >;
+  [TaskFuncDefs.update_task.name]: FromSchema<
+    typeof TaskFuncDefs.update_task.parameters
+  >;
   [TaskFuncDefs.fetch_projects_and_tags.name]: FromSchema<
     typeof TaskFuncDefs.fetch_projects_and_tags.parameters
   >;
@@ -43,6 +46,10 @@ export type FunctionNameParamsUnion =
   | {
       name: "record_end_task";
       params: FromSchema<typeof TaskFuncDefs.record_end_task.parameters>;
+    }
+  | {
+      name: "update_task";
+      params: FromSchema<typeof TaskFuncDefs.update_task.parameters>;
     }
   | {
       name: "fetch_projects_and_tags";

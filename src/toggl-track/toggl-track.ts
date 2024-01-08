@@ -23,7 +23,7 @@ export class TogglTrackClient {
   private async fetch(
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     url: string,
-    body?: Record<string, string | number>
+    body?: Record<string, string | number | string[] | number[]>
   ) {
     const res = await fetch(url, {
       method,
@@ -71,13 +71,13 @@ export class TogglTrackClient {
     return res as { id: number; description: string } | null;
   }
 
-  async startTimeEntry(title: string): Promise<TimeEntry> {
+  async startTimeEntry(description: string): Promise<TimeEntry> {
     const res = await this.fetch(
       "POST",
       `${this.getWorkspacePath()}/time_entries`,
       {
         created_with: "times gpt",
-        description: title,
+        description,
         start: new Date().toISOString(),
         duration: -1,
         workspace_id: this.workspaceId,
@@ -95,7 +95,7 @@ export class TogglTrackClient {
   }
 
   async createTimeEntry(
-    title: string,
+    description: string,
     start: string,
     end: string
   ): Promise<TimeEntry> {
@@ -104,11 +104,27 @@ export class TogglTrackClient {
       `${this.getWorkspacePath()}/time_entries`,
       {
         created_with: "times gpt",
-        description: title,
+        description,
         start,
         end,
         workspace_id: this.workspaceId,
       }
+    );
+    return res;
+  }
+
+  async updateTimeEntry(
+    id: number,
+    updates: {
+      description?: string;
+      tags?: string[];
+      project_id?: number;
+    }
+  ): Promise<TimeEntry> {
+    const res = await this.fetch(
+      "PUT",
+      `${this.getWorkspacePath()}/time_entries/${id}`,
+      updates
     );
     return res;
   }

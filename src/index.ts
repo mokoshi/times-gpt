@@ -1,10 +1,12 @@
 import "./di";
 import { Hono } from "hono";
+import { bearerAuth } from "hono/bearer-auth";
 import { drizzle } from "drizzle-orm/d1";
 import { SlackApp } from "slack-cloudflare-workers";
-import { botContext } from "./schema";
-import { registerWithEnv } from "./di";
+import { registerWithEnv, resolve } from "./di";
 import { Mokonyan } from "./ai/mokonyan";
+import { AssistantDefs } from "./ai/assistant-defs";
+import { BotSettingRepository } from "./ai/bot-setting-repository";
 
 type Bindings = {
   DB: D1Database;
@@ -12,6 +14,7 @@ type Bindings = {
 type Variables = {
   SLACK_SIGNING_SECRET: string;
   MOKOSHI_SLACK_ID: string;
+  TIMES_GPT_API_KEY: string;
 };
 
 const app = new Hono<{ Bindings: Bindings & Variables }>();
@@ -20,25 +23,26 @@ function trimHeadMention(text: string) {
   return text.replace(/^<@.*?>/, "").trim();
 }
 
-app.get("/", async (c) => {
-  registerWithEnv({ ...c.env, Drizzle: drizzle(c.env.DB) });
+function registerWithHonoContext(c: any) {
+  registerWithEnv({ ...c.env, DRIZZLE: drizzle(c.env.DB) });
+}
 
-  const db = drizzle(c.env.DB);
-  const result = await db.select().from(botContext).all();
-  return c.json(result);
+app.get("/", async (c) => {
+  registerWithHonoContext(c);
+  return c.json({ ok: true });
 });
 
 app.post("/", async (c) => {
-  registerWithEnv({ ...c.env, Drizzle: drizzle(c.env.DB) });
+  registerWithHonoContext(c);
 
   const app = new SlackApp({ env: c.env });
 
-  function isMokoshi(userId: string | undefined) {
+  function isValidUser(userId: string | undefined) {
     return userId === c.env.MOKOSHI_SLACK_ID;
   }
 
   app.event("app_mention", async ({ context, payload }) => {
-    if (!isMokoshi(context.userId)) {
+    if (!isValidUser(context.userId)) {
       await context.say({
         thread_ts: payload.thread_ts ?? payload.ts,
         text: "ごめんなさいにゃん。ぼくはもこしさんとしか話せないにゃん。",
@@ -46,8 +50,11 @@ app.post("/", async (c) => {
       return;
     }
 
+    const botSettingRepository = new BotSettingRepository();
+    const assistantId = await botSettingRepository.fetchAssistantId();
+
     const mokonyan = new Mokonyan();
-    await mokonyan.bootstrap();
+    await mokonyan.bootstrap(assistantId);
     await mokonyan.addMessage(trimHeadMention(payload.text));
     await mokonyan.think();
     const messages = await mokonyan.getUnreadMessages({ role: "assistant" });
@@ -61,5 +68,22 @@ app.post("/", async (c) => {
 
   return await app.run(c.req.raw, c.executionCtx);
 });
+
+app.post(
+  "/renew_assistant",
+  (c, ...args) => bearerAuth({ token: c.env.TIMES_GPT_API_KEY })(c, ...args),
+  async (c) => {
+    registerWithHonoContext(c);
+
+    const openAI = resolve("OpenAIClient");
+    const assistant = await openAI.createAssistant(AssistantDefs.mokonyan);
+    const assistantId = assistant.id;
+
+    const botSettingRepository = new BotSettingRepository();
+    await botSettingRepository.update(assistantId);
+
+    return c.json({ assistantId });
+  }
+);
 
 export default app;

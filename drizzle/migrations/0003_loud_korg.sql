@@ -1,1 +1,0 @@
-ALTER TABLE bot_context ADD `message_read_at` integer;

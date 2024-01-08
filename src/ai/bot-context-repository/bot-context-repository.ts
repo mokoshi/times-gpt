@@ -12,4 +12,5 @@ export interface BotContextRepository {
     id: number,
     data: Partial<InferInsertModel<typeof botContext>>
   ): Promise<void>;
+  delete(id: number): Promise<void>;
 }

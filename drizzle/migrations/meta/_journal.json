@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1702782907552,
-      "tag": "0000_silky_mindworm",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1703490294198,
-      "tag": "0001_slippery_triathlon",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1704101283900,
-      "tag": "0002_burly_adam_warlock",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1704101635878,
-      "tag": "0003_loud_korg",
+      "when": 1704706103485,
+      "tag": "0000_friendly_cable",
       "breakpoints": true
     }
   ]

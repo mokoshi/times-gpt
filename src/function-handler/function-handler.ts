@@ -32,6 +32,9 @@ export class FunctionHandler {
       case "record_end_task":
         result.data = await this.recordEndTask(params);
         break;
+      case "update_task":
+        result.data = await this.updateTask(params);
+        break;
       case "fetch_projects_and_tags":
         result.data = await this.fetchProjectsAndTags();
         break;
@@ -46,19 +49,34 @@ export class FunctionHandler {
 
   async callMfKintai(data: FunctionParams["kintai"]) {
     this.logger.debug("callMfKintai", data);
-    // await this.mfKintaiClient.recordTime(data.event);
+    await this.mfKintaiClient.recordTime(data.event);
     return {};
   }
 
   async recordStartTask(data: FunctionParams["record_start_task"]) {
     this.logger.debug("call toggl startTimeEntry", data);
-    const result = await this.togglTrackClient.startTimeEntry(data.title);
+    const result = await this.togglTrackClient.startTimeEntry(data.description);
     return { id: result.id };
   }
 
   async recordEndTask(data: FunctionParams["record_end_task"]) {
     this.logger.debug("call toggl stopTimeEntry", data);
     const result = await this.togglTrackClient.stopTimeEntry(data.task_id);
+    await this.togglTrackClient.updateTimeEntry(data.task_id, {
+      description: data.description,
+      project_id: data.project_id,
+      tags: data.tags,
+    });
+    return { id: result.id };
+  }
+
+  async updateTask(data: FunctionParams["update_task"]) {
+    this.logger.debug("call toggl updateTimeEntry", data);
+    const result = await this.togglTrackClient.updateTimeEntry(data.task_id, {
+      description: data.description,
+      project_id: data.project_id,
+      tags: data.tags,
+    });
     return { id: result.id };
   }
 

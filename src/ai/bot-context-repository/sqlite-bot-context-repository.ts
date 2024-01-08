@@ -2,12 +2,14 @@ import { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import { type BotContextRepository } from "./bot-context-repository";
 import { botContext } from "../../schema";
 import { InferInsertModel, desc, eq } from "drizzle-orm";
+import { autoInjectable, inject } from "tsyringe";
 
+@autoInjectable()
 export class SqliteBotContextRepository implements BotContextRepository {
   private db: BaseSQLiteDatabase<any, any>;
 
-  constructor(drizzle: BaseSQLiteDatabase<any, any>) {
-    this.db = drizzle;
+  constructor(@inject("Database") db?: BaseSQLiteDatabase<any, any>) {
+    this.db = db!;
   }
 
   async create(assistantId: string, threadId: string): Promise<number> {
@@ -55,5 +57,9 @@ export class SqliteBotContextRepository implements BotContextRepository {
     data: Partial<InferInsertModel<typeof botContext>>
   ): Promise<void> {
     await this.db.update(botContext).set(data).where(eq(botContext.id, id));
+  }
+
+  async delete(id: number) {
+    await this.db.delete(botContext).where(eq(botContext.id, id));
   }
 }

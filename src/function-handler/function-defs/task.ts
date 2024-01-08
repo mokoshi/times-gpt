@@ -1,3 +1,9 @@
+const description = {
+  type: "string",
+  description:
+    "タスクの名前。例えば:「ServiceLocatorを実装する」「面談の準備をする」",
+} as const;
+
 export const TaskFuncDefs = {
   record_start_task: {
     name: "record_start_task",
@@ -5,12 +11,9 @@ export const TaskFuncDefs = {
     parameters: {
       type: "object",
       properties: {
-        title: {
-          type: "string",
-          description: "タスクの名前",
-        },
+        description,
       },
-      required: ["title"],
+      required: ["description"],
     },
   },
   record_end_task: {
@@ -19,13 +22,14 @@ export const TaskFuncDefs = {
     parameters: {
       type: "object",
       properties: {
+        description,
         task_id: {
           type: "number",
           description: "タスクのID",
         },
-        project: {
-          type: "string",
-          description: "タスクのプロジェクト",
+        project_id: {
+          type: "number",
+          description: "プロジェクトのID",
         },
         tags: {
           type: "array",
@@ -35,7 +39,33 @@ export const TaskFuncDefs = {
           },
         },
       },
-      required: ["task_id", "project", "tags"],
+      required: ["task_id"],
+    },
+  },
+  update_task: {
+    name: "update_task",
+    description: "タスクの内容を編集します",
+    parameters: {
+      type: "object",
+      properties: {
+        description,
+        task_id: {
+          type: "number",
+          description: "タスクのID",
+        },
+        project_id: {
+          type: "number",
+          description: "プロジェクトのID",
+        },
+        tags: {
+          type: "array",
+          description: "タスクのタグ",
+          items: {
+            type: "string",
+          },
+        },
+      },
+      required: ["task_id"],
     },
   },
   record_start_and_end_task: {
@@ -44,9 +74,10 @@ export const TaskFuncDefs = {
     parameters: {
       type: "object",
       properties: {
-        title: {
+        description: {
           type: "string",
-          description: "タスクの名前",
+          description:
+            "タスクの名前。例えば：「ServiceLocatorを実装する」「面談の準備をする」",
         },
         project: {
           type: "string",

@@ -10,6 +10,7 @@ import { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 
 type Container = {
   Logger: Logger;
+  Database: BaseSQLiteDatabase<any, any>;
   BotContextRepository: SqliteBotContextRepository;
   OpenAIClient: OpenAIClient;
   MfKintaiClient: MfKintaiClient;
@@ -22,6 +23,9 @@ export function registerWithEnv(env: Record<string, any>) {
     logger: {
       logLevel: env.LOG_LEVEL as any,
     },
+    database: {
+      drizzle: env.DRIZZLE,
+    },
     openAIClient: {
       apiKey: env.OPENAI_API_KEY,
     },
@@ -32,26 +36,24 @@ export function registerWithEnv(env: Record<string, any>) {
       apiToken: env.TOGGL_TRACK_API_TOKEN,
       workspaceId: parseInt(env.TOGGL_TRACK_WORKSPACE_ID),
     },
-    botContextRepository: {
-      drizzle: env.Drizzle,
-    },
   });
 }
 
 export function register(config: {
   logger: { logLevel: "debug" | "info" | "warn" | "error" };
+  database: { drizzle: BaseSQLiteDatabase<any, any> };
   openAIClient: { apiKey: string };
   mfKintaiClient: { sessionId: string };
   togglTrackClient: { apiToken: string; workspaceId: number };
-  botContextRepository: { drizzle: BaseSQLiteDatabase<any, any> };
 }) {
   container.register("Logger", {
     useValue: new Logger(config.logger),
   });
+  container.register("Database", {
+    useValue: config.database.drizzle,
+  });
   container.register("BotContextRepository", {
-    useValue: new SqliteBotContextRepository(
-      config.botContextRepository.drizzle
-    ),
+    useValue: new SqliteBotContextRepository(),
   });
   container.register("OpenAIClient", {
     useValue: new OpenAIClient(config.openAIClient.apiKey),

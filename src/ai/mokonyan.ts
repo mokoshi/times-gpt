@@ -30,16 +30,18 @@ export class Mokonyan {
    * 本日の botContext を作成 or 取得し、内部状態にセットする
    * 作成する場合は、 thread も同時に作成する
    */
-  async bootstrap() {
+  async bootstrap(assistantId: string) {
     this.logger.debug("Bootstrap!");
 
     const latestContext = await this.botContextRepository.fetchLatest();
     if (!latestContext || !this.isContextToday(latestContext)) {
-      // start new context
-      this.botContextId = await this.startNewContext(
-        "asst_l9nIUIqaVItaYawSo6PeIqn3"
-      );
+      this.logger.info("No context found today. Create new context.");
+      // TODO: assistantId をどこかから渡せるようにしたいね
+      this.botContextId = await this.startNewContext(assistantId);
     } else {
+      this.logger.info("Today's context found.", {
+        botContextId: latestContext.id,
+      });
       this.botContextId = latestContext.id;
     }
   }

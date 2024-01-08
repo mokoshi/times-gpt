@@ -7,8 +7,9 @@ async function sandbox() {
     Number(process.env.TOGGL_TRACK_WORKSPACE_ID!)
   );
 
-  // console.log(await client.getProjects());
-  // console.log(await client.getTags());
+  const projects = await client.getProjects();
+  const tags = await client.getTags();
+
   // console.log(await client.getTimeEntries());
   console.log("Current:", await client.getCurrentTimeEntry());
   await sleep(1000);
@@ -18,6 +19,15 @@ async function sandbox() {
   console.log("Current:", await client.getCurrentTimeEntry());
   await sleep(1000);
   console.log("Stopped!", await client.stopTimeEntry(e.id));
+  console.log(projects[0]);
+  console.log(
+    "Stopped!",
+    await client.updateTimeEntry(e.id, {
+      description: "Edited:開発するよ",
+      project_id: projects[0].id,
+      tags: [tags[0].name, tags[1].name],
+    })
+  );
 }
 
 sandbox();
