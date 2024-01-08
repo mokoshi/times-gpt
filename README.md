@@ -8,7 +8,13 @@ bun run dev
 ```
 
 ```
-npm run deploy
+bun run deploy
+```
+
+### renew assistant based on code
+
+```
+[HOST=...] bun renew-assistant
 ```
 
 ## DB
