@@ -1,5 +1,10 @@
 # times-gpt
 
+<p>
+<img width=150 src="mokonyan.jpg" alt="もこにゃん">
+<span>< にゃん</span>
+</p>
+
 ## run app
 
 ```
